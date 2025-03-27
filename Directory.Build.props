@@ -1,6 +1,5 @@
 <Project>
     <PropertyGroup>
         <MyLibraryPath>D:\Steam\steamapps\common\RimWorld</MyLibraryPath>
-		<AssemblyPath>D:\Hobbang\rimworldmods\MyMods\Assembly-CSharp\obj\Debug\net472</AssemblyPath>
     </PropertyGroup>
 </Project>
