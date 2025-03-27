@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridCellTemperature", "GridCellTemperature.csproj", "{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "..\Assembly-CSharp\Assembly-CSharp.csproj", "{72B83D31-8E25-0CCC-B635-0D336DA684E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {454C460E-2EC7-46EF-9512-3FD0313E4613}
+	EndGlobalSection
+EndGlobal
