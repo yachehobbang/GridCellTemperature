@@ -95,8 +95,8 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Assembly-CSharp\Assembly-CSharp.csproj">
-      <Project>{72b83d31-8e25-0ccc-b635-0d336da684e8}</Project>
+    <ProjectReference Include="..\..\Assembly-CSharp\Assembly-CSharp.csproj">
+      <Project>{90c7c771-28d1-0416-9bb3-d7db4d14ebc9}</Project>
       <Name>Assembly-CSharp</Name>
       <Private>False</Private>
     </ProjectReference>

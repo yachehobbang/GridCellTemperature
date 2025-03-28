@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridCellTemperature", "GridCellTemperature.csproj", "{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "..\Assembly-CSharp\Assembly-CSharp.csproj", "{72B83D31-8E25-0CCC-B635-0D336DA684E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "..\..\Assembly-CSharp\Assembly-CSharp.csproj", "{90C7C771-28D1-0416-9BB3-D7DB4D14EBC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72B83D31-8E25-0CCC-B635-0D336DA684E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90C7C771-28D1-0416-9BB3-D7DB4D14EBC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90C7C771-28D1-0416-9BB3-D7DB4D14EBC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90C7C771-28D1-0416-9BB3-D7DB4D14EBC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90C7C771-28D1-0416-9BB3-D7DB4D14EBC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
