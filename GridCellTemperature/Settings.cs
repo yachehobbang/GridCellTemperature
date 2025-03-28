@@ -12,7 +12,7 @@ namespace GridCellTemperature
 		private const int SettingsVersion = 1;
 
 		public static readonly Setting<bool> viewSimTickTime = new Setting<bool>(nameof(viewSimTickTime), false);
-		public static readonly Setting<float> baseHeatTransferCoefficient = new Setting<float>(nameof(baseHeatTransferCoefficient), 3f);
+		public static readonly Setting<int> baseHeatTransferCoefficient = new Setting<int>(nameof(baseHeatTransferCoefficient), 3);
 		public static readonly Setting<float> airDiffusivity = new Setting<float>(nameof(airDiffusivity), 1f);
 		public static readonly Setting<float> wallDiffusivity = new Setting<float>(nameof(wallDiffusivity), 0.1f);
 		public static readonly Setting<float> wallMassDiffusivity = new Setting<float>(nameof(wallMassDiffusivity), 0.1f);

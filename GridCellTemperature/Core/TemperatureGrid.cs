@@ -544,18 +544,31 @@ namespace GridCellTemperature.Core
 			(temperatures[2], weights[2]) = GetCellInfo(x - 1, y, size, cellIsWall, tempGrid, outdoorTemperature);
 			(temperatures[3], weights[3]) = GetCellInfo(x, y - 1, size, cellIsWall, tempGrid, outdoorTemperature);
 
+			var baseHeatTransferCoefficient = Settings.baseHeatTransferCoefficient.Value;
+
 			var cellEnergy = cellTemperature - outdoorTemperature;
-			var cellEnergyNormal = Mathf.Pow(Mathf.Abs(cellEnergy), Settings.baseHeatTransferCoefficient.Value) * Mathf.Sign(cellEnergy);
+			var cellEnergyValue = cellEnergy;
+			for (var c = 1; c<baseHeatTransferCoefficient;c++)
+			{
+				cellEnergyValue *= cellEnergy;
+			}
+			cellEnergyValue = Mathf.Abs(cellEnergyValue) * Mathf.Sign(cellEnergy);
+
 			var sum = 0f;
 			for (var i = 0; i < 4; i++)
 			{
 				var targetCellEnergy = temperatures[i] - outdoorTemperature;
-				var targetCellEnergyNormal = Mathf.Pow(Mathf.Abs(targetCellEnergy), Settings.baseHeatTransferCoefficient.Value) * Mathf.Sign(targetCellEnergy);
+				var targetCellEnergyValue = targetCellEnergy;
+				for (var c = 1; c < baseHeatTransferCoefficient; c++)
+				{
+					targetCellEnergyValue *= targetCellEnergy;
+				}
+				targetCellEnergyValue = Mathf.Abs(targetCellEnergyValue) * Mathf.Sign(targetCellEnergy);
 
-				var d = (targetCellEnergyNormal - cellEnergyNormal) * weights[i];
+				var d = (targetCellEnergyValue - cellEnergyValue) * weights[i];
 				sum += d;
 			}
-			var newValue = cellEnergyNormal + sum * 0.2f;
+			var newValue = cellEnergyValue + sum * 0.2f;
 			newValue *= 1f - roofWeight;
 			var result = Mathf.Pow(Mathf.Abs(newValue), 1f / Settings.baseHeatTransferCoefficient.Value) * Mathf.Sign(newValue) + outdoorTemperature;
 
