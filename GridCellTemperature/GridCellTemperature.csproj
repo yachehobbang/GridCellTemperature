@@ -98,6 +98,7 @@
     <ProjectReference Include="..\..\Assembly-CSharp\Assembly-CSharp.csproj">
       <Project>{90c7c771-28d1-0416-9bb3-d7db4d14ebc9}</Project>
       <Name>Assembly-CSharp</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

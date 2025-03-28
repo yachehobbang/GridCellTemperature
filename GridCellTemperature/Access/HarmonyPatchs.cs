@@ -24,7 +24,7 @@ namespace GridCellTemperature.Access
 	{
 		public static void Postfix(Map __instance)
 		{
-			TemperatureGrid.TemperatureGridInstance = new TemperatureGrid(__instance);
+			new TemperatureGrid(__instance);
 		}
 	}
 
@@ -33,14 +33,13 @@ namespace GridCellTemperature.Access
 	{
 		public static void Postfix(Map __instance)
 		{
-			var grid = TemperatureGrid.TemperatureGridInstance;
+			var grid = TemperatureGrid.GetTemperatureGrid(__instance);
 			if (grid == null)
 			{
-				grid = new TemperatureGrid(__instance);
+				return;
 			}
 
 			Scribe_Deep.Look(ref grid, "TemperatureGrid", __instance);
-			TemperatureGrid.TemperatureGridInstance = grid;
 		}
 	}
 
@@ -49,7 +48,7 @@ namespace GridCellTemperature.Access
 	{
 		public static void Postfix(Map __instance)
 		{
-			var grid = TemperatureGrid.TemperatureGridInstance;
+			var grid = TemperatureGrid.GetTemperatureGrid(__instance);
 			if (grid == null)
 			{
 				return;
@@ -59,20 +58,24 @@ namespace GridCellTemperature.Access
 		}
 	}
 
+	[HarmonyPatch(typeof(Map), nameof(Map.Dispose))]
+	public static class Map_Dispose
+	{
+		public static void Postfix(Map __instance)
+		{
+			var grids = TemperatureGrid.TemperatureGrids;
+			grids.Remove(__instance.uniqueID);
+		}
+	}
+
 	[HarmonyPatch(typeof(World), "WorldTick")]
 	public static class World_WorldTick
 	{
 		public static void Postfix(World __instance)
 		{
-			var grid = TemperatureGrid.TemperatureGridInstance;
-			if (grid == null)
-			{
-				return;
-			}
-
 			if ((Find.TickManager.TicksGame + 17) % 60 == 0)
 			{
-				grid.MarkAsDirtyTemperatureGrid();
+				TemperatureGrid.RunTemperatureSimulation();
 			}
 		}
 	}
@@ -82,7 +85,7 @@ namespace GridCellTemperature.Access
 	{
 		public static bool Prefix(IntVec3 c, Map map, float energy)
 		{
-			TemperatureGrid.PushHeat(c, energy);
+			TemperatureGrid.PushHeat(map, c, energy);
 
 			return false;
 		}
@@ -93,7 +96,7 @@ namespace GridCellTemperature.Access
 	{
 		public static void Postfix(GlobalControls __instance, ref string __result)
 		{
-			var grid = TemperatureGrid.TemperatureGridInstance;
+			var grid = TemperatureGrid.GetTemperatureGrid(Find.CurrentMap);
 			if (grid == null)
 			{
 				return;
@@ -264,7 +267,7 @@ namespace GridCellTemperature.Access
 	{
 		public static bool Prefix(Room __instance, float value)
 		{
-			var grid = TemperatureGrid.TemperatureGridInstance;
+			var grid = TemperatureGrid.GetTemperatureGrid(__instance.Map);
 			if (grid == null)
 			{
 				return false;
@@ -302,8 +305,9 @@ namespace GridCellTemperature.Access
 			if (flag)
 			{
 				var energy = compTempControl.Props.energyPerSecond * 4.1666665f;
-				TemperatureGrid.PushHeat(intVec, energy);
-				TemperatureGrid.PushHeat(intVec2, -energy * 1.25f);
+				var grid = TemperatureGrid.GetTemperatureGrid(map);
+				grid.PushHeat(intVec, energy);
+				grid.PushHeat(intVec2, -energy * 1.25f);
 
 				compPowerTrader.PowerOutput = 0f - compPowerTrader.Props.PowerConsumption;
 			}
@@ -337,7 +341,7 @@ namespace GridCellTemperature.Access
 				CompProperties_Power props = compPowerTrader.Props;
 				if (flag)
 				{
-					TemperatureGrid.PushHeat(__instance.Position, energy);
+					TemperatureGrid.PushHeat(map, __instance.Position, energy);
 					compPowerTrader.PowerOutput = 0f - props.PowerConsumption;
 				}
 				else

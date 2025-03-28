@@ -6,32 +6,44 @@ namespace GridCellTemperature.Core
 	{
 		public static void UpdateDoor(Building_Door door)
 		{
+			var grid = TemperatureGrid.GetTemperatureGrid(door.Map);
+			if (grid == null)
+			{
+				return;
+			}
+
 			if (door.Spawned && door.Open)
 			{
 				if (door.Open)
 				{
-					TemperatureGrid.SetVentilationCell(door.Position, 0.25f);
+					grid.SetVentilationCell(door.Position, 0.25f);
 				}
 				else
 				{
-					TemperatureGrid.SetVentilationCell(door.Position, 1f);
+					grid.SetVentilationCell(door.Position, 1f);
 				}
 			}
 			else
 			{
-				TemperatureGrid.SetVentilationCell(door.Position, null);
+				grid.SetVentilationCell(door.Position, null);
 			}
 		}
 
 		public static void UpdateVent(Building_Vent vent)
 		{
+			var grid = TemperatureGrid.GetTemperatureGrid(vent.Map);
+			if (grid == null)
+			{
+				return;
+			}
+
 			if (vent.Spawned && FlickUtility.WantsToBeOn(vent))
 			{
-				TemperatureGrid.SetVentilationCell(vent.Position, 1f);
+				grid.SetVentilationCell(vent.Position, 1f);
 			}
 			else
 			{
-				TemperatureGrid.SetVentilationCell(vent.Position, null);
+				grid.SetVentilationCell(vent.Position, null);
 			}
 		}
 	}
