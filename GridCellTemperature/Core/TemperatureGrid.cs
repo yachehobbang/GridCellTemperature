@@ -169,7 +169,7 @@ namespace GridCellTemperature.Core
 			Task.Run(AsyncTemperatureSimulation);
 		}
 
-		private static async Task AsyncTemperatureSimulation()
+		private static Task AsyncTemperatureSimulation()
 		{
 			try
 			{
@@ -179,7 +179,7 @@ namespace GridCellTemperature.Core
 					tasks.Add(grid.AsyncSimulationTick());
 				}
 
-				await Task.WhenAll(tasks.ToArray());
+				Task.WaitAll(tasks.ToArray());
 			}
 			catch (Exception e)
 			{
@@ -194,6 +194,8 @@ namespace GridCellTemperature.Core
 			{
 				_tickTime = Time.realtimeSinceStartup - _tickStart;
 			}
+
+			return Task.CompletedTask;
 		}
 
 		public void GetTemperatureString(ref string __result)
