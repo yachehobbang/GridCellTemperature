@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -23,7 +24,7 @@ namespace GridCellTemperature
 		{
 			get
 			{
-				return typeof(Settings).GetFields().Select(field => field.GetValue(null) as Setting).Where(setting => setting != null);
+				return (typeof(Settings).GetFields()).Select(field => field.GetValue(null) as Setting).Where(setting => setting != null);
 			}
 		}
 
