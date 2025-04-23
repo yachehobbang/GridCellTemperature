@@ -313,7 +313,6 @@ namespace GridCellTemperature.Core
 				return;
 			}
 
-			//pushHeatGrid[index.Value] += energy;
 			pushHeatGrid[index.Value] += energy / Mathf.Sqrt(Settings.baseHeatTransferCoefficient.Value);
 		}
 
