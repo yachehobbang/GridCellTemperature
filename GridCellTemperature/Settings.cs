@@ -8,15 +8,15 @@ namespace GridCellTemperature
 {
 	public class Settings : ModSettings
 	{
-		private const int SettingsVersion = 1;
+		private const int SettingsVersion = 2;
 
 		public static readonly Setting<bool> viewSimTickTime = new(nameof(viewSimTickTime), false);
 		public static readonly Setting<int> baseHeatTransferCoefficient = new(nameof(baseHeatTransferCoefficient), 3);
 		public static readonly Setting<float> airDiffusivity = new(nameof(airDiffusivity), 1f);
-		public static readonly Setting<float> wallDiffusivity = new(nameof(wallDiffusivity), 0.1f);
-		public static readonly Setting<float> wallMassDiffusivity = new(nameof(wallMassDiffusivity), 0.1f);
+		public static readonly Setting<float> wallDiffusivity = new(nameof(wallDiffusivity), 0.01f);
+		public static readonly Setting<float> wallMassDiffusivity = new(nameof(wallMassDiffusivity), 0.01f);
 		public static readonly Setting<float> skyDiffusivity = new(nameof(skyDiffusivity), 0.5f);
-		public static readonly Setting<float> roofDiffusivity = new(nameof(roofDiffusivity), 0.05f);
+		public static readonly Setting<float> roofDiffusivity = new(nameof(roofDiffusivity), 0.03f);
 		public static readonly Setting<float> thickRoofDiffusivity = new(nameof(thickRoofDiffusivity), 0.01f);
 		public static readonly Setting<float> roomDiffusivity = new(nameof(roomDiffusivity), 0.5f);
 

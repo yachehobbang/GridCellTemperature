@@ -313,7 +313,8 @@ namespace GridCellTemperature.Core
 				return;
 			}
 
-			pushHeatGrid[index.Value] += energy;
+			//pushHeatGrid[index.Value] += energy;
+			pushHeatGrid[index.Value] += energy / Mathf.Sqrt(Settings.baseHeatTransferCoefficient.Value);
 		}
 
 		public static void SetVentilationCell(Map map, IntVec3 c, float? value)
@@ -541,30 +542,40 @@ namespace GridCellTemperature.Core
 			var baseHeatTransferCoefficient = Settings.baseHeatTransferCoefficient.Value;
 
 			var cellEnergy = cellTemperature - outdoorTemperature;
-			var cellEnergyValue = cellEnergy;
+			var cellEnergySign = Mathf.Sign(cellEnergy);
+			var cellEnergyValue = Mathf.Abs(cellEnergy);
 			for (var c = 1; c < baseHeatTransferCoefficient; c++)
 			{
-				cellEnergyValue *= cellEnergy;
+				cellEnergyValue *= cellEnergyValue;
 			}
-			cellEnergyValue = Mathf.Abs(cellEnergyValue) * Mathf.Sign(cellEnergy);
+			cellEnergyValue *= cellEnergySign;
 
 			var sum = 0f;
 			for (var i = 0; i < 4; i++)
 			{
 				var targetCellEnergy = temperatures[i] - outdoorTemperature;
-				var targetCellEnergyValue = targetCellEnergy;
+				var targetCellEnergySign = Mathf.Sign(targetCellEnergy);
+				var targetCellEnergyValue = Mathf.Abs(targetCellEnergy);
 				for (var c = 1; c < baseHeatTransferCoefficient; c++)
 				{
-					targetCellEnergyValue *= targetCellEnergy;
+					targetCellEnergyValue *= targetCellEnergyValue;
 				}
-				targetCellEnergyValue = Mathf.Abs(targetCellEnergyValue) * Mathf.Sign(targetCellEnergy);
+				targetCellEnergyValue *= targetCellEnergySign;
 
 				var d = (targetCellEnergyValue - cellEnergyValue) * weights[i];
 				sum += d;
 			}
 			var newValue = cellEnergyValue + sum * 0.2f;
 			newValue *= 1f - roofWeight;
-			var result = Mathf.Pow(Mathf.Abs(newValue), 1f / Settings.baseHeatTransferCoefficient.Value) * Mathf.Sign(newValue) + outdoorTemperature;
+
+			var resultSign = Mathf.Sign(newValue);
+			newValue = Mathf.Abs(newValue);
+			for (var c = 1; c < baseHeatTransferCoefficient; c++)
+			{
+				newValue = Mathf.Sqrt(newValue);
+			}
+
+			var result = newValue * Mathf.Sign(resultSign) + outdoorTemperature;
 
 			if (result > MaxTemperature)
 			{

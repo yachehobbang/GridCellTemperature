@@ -44,7 +44,7 @@ namespace GridCellTemperature
 
 			listingSettings.CheckboxLabeled("View SimTick Time", ref Settings.viewSimTickTime.Value);
 
-			listingSettings.SliderLabeled("Base Heat Transfer Coefficient", ref Settings.baseHeatTransferCoefficient.Value, 1, 5, 1);
+			listingSettings.SliderLabeled("Base Heat Transfer Coefficient", ref Settings.baseHeatTransferCoefficient.Value, 1, 4, 1);
 			listingSettings.SliderLabeled("Air-to-Surface Heat Transfer Coefficient", ref Settings.airDiffusivity.Value, 0f, 1f, 0.001f);
 			listingSettings.SliderLabeled("Air-to-Wall Heat Transfer Coefficient", ref Settings.wallDiffusivity.Value, 0f, 1f, 0.001f);
 			listingSettings.SliderLabeled("Wall-to-Wall Heat Transfer Coefficient", ref Settings.wallMassDiffusivity.Value, 0f, 1f, 0.001f);
