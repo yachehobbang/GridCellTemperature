@@ -6,6 +6,10 @@ namespace GridCellTemperature.Core
 	{
 		public static void UpdateDoor(Building_Door door)
 		{
+			if (door == null)
+			{
+				return;
+			}
 			var grid = TemperatureGrid.GetTemperatureGrid(door.Map);
 			if (grid == null)
 			{
@@ -16,11 +20,11 @@ namespace GridCellTemperature.Core
 			{
 				if (door.Open)
 				{
-					grid.SetVentilationCell(door.Position, 0.25f);
+					grid.SetVentilationCell(door.Position, 1f);
 				}
 				else
 				{
-					grid.SetVentilationCell(door.Position, 1f);
+					grid.SetVentilationCell(door.Position, 0.25f);
 				}
 			}
 			else

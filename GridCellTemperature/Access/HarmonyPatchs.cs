@@ -414,14 +414,11 @@ namespace GridCellTemperature.Access
 	{
 		public static void Postfix(Building __instance, DestroyMode mode)
 		{
-			var door = __instance as Building_Door;
-			if (door != null)
+			if (__instance is Building_Door door)
 			{
 				VentilationUtil.UpdateDoor(door);
-				return;
 			}
-			var vent = __instance as Building_Vent;
-			if (vent != null)
+			else if (__instance is Building_Vent vent)
 			{
 				VentilationUtil.UpdateVent(vent);
 			}
