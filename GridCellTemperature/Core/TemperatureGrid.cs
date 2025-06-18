@@ -130,7 +130,7 @@ namespace GridCellTemperature.Core
 			{
 				temperatures[i] = outdoorTemperature;
 			}
-			foreach (var room in map.regionGrid.allRooms)
+			foreach (var room in map.regionGrid.AllRooms)
 			{
 				if (room.UsesOutdoorTemperature)
 				{
@@ -365,7 +365,7 @@ namespace GridCellTemperature.Core
 
 			Array.Clear(airCellGrid, 0, airCellGrid.Length);
 
-			foreach (var room in map.regionGrid.allRooms)
+			foreach (var room in map.regionGrid.AllRooms)
 			{
 				var cells = room.Cells;
 

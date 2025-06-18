@@ -80,6 +80,10 @@
 		<Reference Include="System.Xaml" />
 		<Reference Include="Microsoft.CSharp" />
 		<Reference Include="System.Data" />
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(MyLibraryPath)\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>$(MyLibraryPath)\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
@@ -95,12 +99,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<WCFMetadata Include="Connected Services\" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\..\Assembly-CSharp\Assembly-CSharp.csproj">
-			<Project>{90c7c771-28d1-0416-9bb3-d7db4d14ebc9}</Project>
-			<Name>Assembly-CSharp</Name>
-			<Private>False</Private>
-		</ProjectReference>
 	</ItemGroup>
 </Project>

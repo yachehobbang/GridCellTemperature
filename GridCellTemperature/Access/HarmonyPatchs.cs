@@ -355,16 +355,12 @@ namespace GridCellTemperature.Access
 		}
 	}
 
-	[HarmonyPatch(typeof(TemperatureCache), nameof(TemperatureCache.TryGetAverageCachedRoomTemp))]
+	[HarmonyPatch(typeof(TemperatureVacuumCache), nameof(TemperatureVacuumCache.TryGetAverageCachedRoomTempVacuum))]
 	public static class TemperatureCache_TryGetAverageCachedRoomTemp
 	{
-		public static bool Prefix(TemperatureCache __instance, Room r, out float result, ref bool __result)
+		public static void Postfix(TemperatureVacuumCache __instance, Room r, ref float temperature, ref float vacuum, ref bool __result)
 		{
-			// 타일 기반온도라 필요없는 함수
-			// 쓸데없는 로직이 돌지 않게 하기 위해서 기존 로직 빼버린다
-			result = 0f;
-			__result = false;
-			return false;
+			temperature = r.Temperature;
 		}
 	}
 
