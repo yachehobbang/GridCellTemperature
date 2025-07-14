@@ -9,7 +9,7 @@ namespace GridCellTemperature.Core
 {
 	public class TemperatureGrid : IExposable
 	{
-		public static readonly Dictionary<int, TemperatureGrid> TemperatureGrids = new Dictionary<int, TemperatureGrid>();
+		public static readonly Dictionary<int, TemperatureGrid> TemperatureGrids = [];
 
 		private readonly float[] temperatures1;
 

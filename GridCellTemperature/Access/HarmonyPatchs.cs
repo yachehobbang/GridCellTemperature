@@ -322,11 +322,16 @@ namespace GridCellTemperature.Access
 		}
 	}
 
-	[HarmonyPatch(typeof(Building_Heater), nameof(Building_Cooler.TickRare))]
+	[HarmonyPatch(typeof(Building_Heater), nameof(Building_Heater.TickRare))]
 	public static class Building_Heater_TickRare
 	{
 		public static bool Prefix(Building_Heater __instance)
 		{
+			if (!__instance.Spawned || !__instance.compPowerTrader.PowerOn)
+			{
+				return false;
+			}
+			
 			var compPowerTrader = __instance.compPowerTrader;
 			if (compPowerTrader.PowerOn)
 			{

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridCellTemperature", "GridCellTemperature.csproj", "{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationLogicTest", "..\SimulationLogicTest\SimulationLogicTest\SimulationLogicTest.csproj", "{EEDBFED6-8175-4113-94A1-F916F557A8F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAFBCC95-0D3F-46A3-A389-C22B4EE342C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEDBFED6-8175-4113-94A1-F916F557A8F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEDBFED6-8175-4113-94A1-F916F557A8F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEDBFED6-8175-4113-94A1-F916F557A8F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEDBFED6-8175-4113-94A1-F916F557A8F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
