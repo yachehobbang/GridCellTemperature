@@ -1,69 +1,49 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using SimulationLogicTest;
-using Verse;
+﻿using SimulationLogicTest;
 using System.Text;
 
-const int size = 20;
-var size3 = new IntVec3(size, 0, size);
+// Read grid dimensions from first line (width and height) and grid data from subsequent lines
 
-var centerCell = new IntVec3(size3.x / 2, 0, size3.z / 2);
-//var centerCell = new IntVec3(size / 2, 0, 0);
+// var lines = File.ReadAllLines("Grid1.txt");
+// var width = lines[0].Split(' ').Count();
+// var height = lines.Length - 1;
+// var dimensions = new[] { width, height };
+// var grid = lines
+//     .SelectMany(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+//     .Select(c => c == "1")
+//     .ToArray();
+//(int x, int y) size = (dimensions[0], dimensions[1]);
+
+(int x, int y) size = (20, 20);
+bool[]? grid = null;
+
+(int x, int y) centerCell = (size.x / 2, size.y / 2);
 List<(SimulationLogic, StringBuilder)> logics = [];
 for (var k = 1; k <= 5; k++)
 {
-    var logic = new SimulationLogic(size3, k);
+    var logic = new SimulationLogic(grid, size, k);
     logics.Add((logic, new StringBuilder()));
 }
 
-// foreach (var valueTuple in logics)
-// {
-//     const int loopCount = 30;
-//     valueTuple.Item1.PushHeat(centerCell, 1000);
-//     for (var i = 0; i < loopCount; i++)
-//     {
-//         //valueTuple.Item1.PushHeat(centerCell, 40);
-//         valueTuple.Item1.Tick();
-//
-//         valueTuple.Item2.AppendLine(valueTuple.Item1.ToString());
-//         valueTuple.Item2.AppendLine($"{i,6}: {valueTuple.Item1.CurrentTemperatures.Average(),6:F2}, {valueTuple.Item1.CurrentTemperatures.Max(),6:F2}");
-//         valueTuple.Item2.AppendLine();
-//     }
-// }
-
 foreach (var valueTuple in logics)
 {
-    const int loopCount = 300;
-    valueTuple.Item1.PushHeat(centerCell, 1000);
+    const int loopCount = 1000;
+    //valueTuple.Item1.PushHeat(centerCell, 1000);
     for (var i = 0; i < loopCount; i++)
     {
-        //valueTuple.Item1.PushHeat(centerCell, 40);
+        if (i % 4 == 0)
+        {
+            valueTuple.Item1.PushHeat(centerCell, 80);
+        }
 
         valueTuple.Item1.Tick();
-
-        if (i == loopCount - 1 || i % 10 == 0)
-        {
-            var avg = valueTuple.Item1.CurrentTemperatures.Average();
-            valueTuple.Item2.AppendLine($"{i,6}: {avg,6:F2}, {valueTuple.Item1.CurrentTemperatures.Max(),6:F2}");
-        }
+        
+        valueTuple.Item1.WriteGridYaml(valueTuple.Item2);
     }
-
-    valueTuple.Item2.AppendLine();
-    valueTuple.Item2.AppendLine(valueTuple.Item1.ToString());
 }
 
-var sb = new StringBuilder();
-
-var lines = logics[0].Item2.ToString().Split(Environment.NewLine);
-for (var i = 0; i < lines.Length - 1; i++)
+for (var index = 0; index < logics.Count; index++)
 {
-    foreach (var (_, stringBuilder) in logics)
-    {
-        var currentLines = stringBuilder.ToString().Split(Environment.NewLine);
-        sb.Append(currentLines[i]);
-        sb.Append("        ");
-    }
-    sb.AppendLine();
+    var valueTuple = logics[index];
+    
+    File.WriteAllText($"gridOutput{index + 1}.txt", valueTuple.Item2.ToString());
 }
-
-File.WriteAllText("output.log", sb.ToString());

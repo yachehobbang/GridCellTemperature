@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>YAML Grid Animation with Color Stops</title>
+    <style>
+        body { background: #222; color: #fff; font-family: sans-serif; padding: 20px; }
+        #canvasContainer { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
+        .grid-wrapper { text-align: center; }
+        canvas { border: 1px solid #444; }
+        #controls { text-align: center; margin-top: 10px; }
+        button { margin: 0 5px; padding: 5px 10px; }
+        input { width: 50px; }
+
+        .average-value {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+<h1>Grid Animation Player</h1>
+<div id="controls">
+    <button id="playBtn">Play</button>
+    <button id="pauseBtn">Pause</button>
+    <label>FPS: <input id="fpsInput" type="number" value="16" min="1" max="60"></label>
+    <br>
+    <input type="range" id="frameSlider" min="0" value="0" style="width: 300px;">
+    <span id="frameLabel"></span>
+</div>
+<div id="frameCounter"></div>
+<div id="canvasContainer"></div>
+
+<!-- js-yaml CDN -->
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script>
+    const cellSize = 10;
+    const container = document.getElementById('canvasContainer');
+    const animations = [];
+    let playing = false;
+    let intervalId;
+
+    // Color stops: [value, [r,g,b]]
+    const stops = [
+        {v: -100, c: "#000000"},        // Black
+        {v: -25, c: "#00035b"},        // DarkBlue
+        {v: 0, c: "#0343df"},        // Blue
+        {v: 25, c: "#15b01a"},        // Green
+        {v: 50, c: "#ffff14"},        // Yellow
+        {v: 150, c: "#e50000"},        // Red
+        {v: 300, c: "#c20078"},        // Magenta
+        {v: 600, c: "#FFFFFF"}         // White
+    ];
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function getColor(val) {
+        // below first
+        if (val <= stops[0].v) return hexToRgb(stops[0].c);
+        // above last
+        if (val >= stops[stops.length - 1].v) return hexToRgb(stops[stops.length - 1].c);
+        // find interval
+        for (let i = 0; i < stops.length - 1; i++) {
+            const s0 = stops[i], s1 = stops[i + 1];
+            if (val >= s0.v && val <= s1.v) {
+                const t = (val - s0.v) / (s1.v - s0.v);
+                const c0 = hexToRgb(s0.c);
+                const c1 = hexToRgb(s1.c);
+                return [
+                    Math.round(lerp(c0[0], c1[0], t)),
+                    Math.round(lerp(c0[1], c1[1], t)),
+                    Math.round(lerp(c0[2], c1[2], t))
+                ];
+            }
+        }
+        return [0, 0, 0];
+    }
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return [
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16)
+        ];
+    }
+
+    async function loadAnimations() {
+        let idx = 1;
+        while (true) {
+            try {
+                const res = await fetch(`./bin/Debug/net9.0/gridOutput${idx}.txt`);
+                if (!res.ok) throw new Error();
+                const raw = await res.text();
+                const wrapped = 'frames:\n' + raw.split('\n').map(line => '  ' + line).join('\n');
+                const doc = jsyaml.load(wrapped);
+                if (Array.isArray(doc.frames) && doc.frames.length > 0) {
+                    animations.push({ frames: doc.frames, idx, current: 0, rows: doc.frames[0].length, cols: doc.frames[0][0].length });
+                }
+                idx++;
+            } catch {
+                break;
+            }
+        }
+    }
+
+    function initCanvases() {
+        animations.forEach(anim => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'grid-wrapper';
+            const title = document.createElement('div');
+            title.textContent = `gridOutput${anim.idx}.txt (${anim.cols}×${anim.rows})`;
+            wrapper.appendChild(title);
+            const canvas = document.createElement('canvas');
+            canvas.width = anim.cols * cellSize;
+            canvas.height = anim.rows * cellSize;
+            anim.ctx = canvas.getContext('2d');
+            wrapper.appendChild(canvas);
+            const averageDiv = document.createElement('div');
+            averageDiv.className = 'average-value';
+            wrapper.appendChild(averageDiv);
+            anim.averageElement = averageDiv;
+            container.appendChild(wrapper);
+            drawFrame(anim, 0);
+        });
+    }
+
+    function drawFrame(anim, frame) {
+        const grid = anim.frames[frame];
+        let sum = 0;
+        for (let y = 0; y < anim.rows; y++) {
+            for (let x = 0; x < anim.cols; x++) {
+                const v = grid[y][x];
+                sum += v;
+                const [r, g, b] = getColor(v);
+                anim.ctx.fillStyle = `rgb(${r},${g},${b})`;
+                anim.ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            }
+        }
+        const average = sum / (anim.rows * anim.cols);
+        anim.averageElement.textContent = `Average Temperature: ${average.toFixed(2)}°`;
+        document.getElementById('frameCounter').textContent = `Frame: ${frame + 1}/${animations[0].frames.length}`;
+        document.getElementById('frameSlider').value = frame;
+        document.getElementById('frameLabel').textContent = `Frame: ${frame + 1}`;
+    }
+
+    function startAnimation() {
+        const fps = parseInt(document.getElementById('fpsInput').value,10) || 5;
+        const delay = 1000/fps;
+        intervalId = setInterval(() => {
+            animations.forEach(anim => {
+                drawFrame(anim, anim.current);
+                anim.current = (anim.current + 1) % anim.frames.length;
+            });
+        }, delay);
+    }
+
+    function play() { if (!playing) { playing = true; startAnimation(); }}
+    function pause() { if (playing) { playing = false; clearInterval(intervalId); }}
+
+    document.getElementById('playBtn').addEventListener('click', play);
+    document.getElementById('pauseBtn').addEventListener('click', pause);
+    document.getElementById('fpsInput').addEventListener('input', () => { if (playing) { clearInterval(intervalId); startAnimation(); }});
+
+    // initialize
+    loadAnimations().then(() => {
+        if (animations.length === 0) container.innerHTML='<p>불러올 프레임이 없습니다.</p>';
+        else {
+            const slider = document.getElementById('frameSlider');
+            slider.max = animations[0].frames.length - 1;
+            slider.addEventListener('input', () => {
+                pause();
+                const frame = parseInt(slider.value);
+                animations.forEach(anim => {
+                    anim.current = frame;
+                    drawFrame(anim, frame);
+                });
+            });
+            initCanvases();
+            play();
+        }
+    });
+</script>
+</body>
+</html>

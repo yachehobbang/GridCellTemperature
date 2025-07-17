@@ -63,7 +63,7 @@ namespace GridCellTemperature.Access
 	{
 		public static void Postfix(Map __instance)
 		{
-			var grids = TemperatureGrid.TemperatureGrids;
+			var grids = TemperatureGrid.temperatureGrids;
 			grids.Remove(__instance.uniqueID);
 		}
 	}

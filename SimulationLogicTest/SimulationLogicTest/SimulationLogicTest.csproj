@@ -27,4 +27,13 @@
         </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Grid1.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="gridOutputViewer.html">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

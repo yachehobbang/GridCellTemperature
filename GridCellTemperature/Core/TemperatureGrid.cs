@@ -9,47 +9,47 @@ namespace GridCellTemperature.Core
 {
 	public class TemperatureGrid : IExposable
 	{
-		public static readonly Dictionary<int, TemperatureGrid> TemperatureGrids = [];
+		public static readonly Dictionary<int, TemperatureGrid> temperatureGrids = [];
 
-		private readonly float[] temperatures1;
+		private readonly float[] _temperatures1;
 
-		private readonly float[] temperatures2;
+		private readonly float[] _temperatures2;
 
-		private readonly bool[] airCellGrid;
+		private readonly bool[] _airCellGrid;
 
-		private readonly float?[] ventilationGrids;
+		private readonly float?[] _ventilationGrids;
 
-		private readonly float[] pushHeatGrid;
+		private readonly float[] _pushHeatGrid;
 
-		private Queue<(IntVec3 cell, float energy)> PushHeatWaitQueue = new();
+		private readonly Queue<(IntVec3 cell, float energy)> _pushHeatWaitQueue = new();
 
-		private int currentIndex = 0;
+		private int _currentIndex = 0;
 
-		private readonly Map map;
+		private readonly Map _map;
 
-		private bool dataLock = false;
+		private bool _dataLock = false;
 
 		private class RoomTemperature
 		{
 			public float Temperature = 0;
 			public float TemperatureOffset = 0f;
-			public List<IntVec3> Cells = [];
+			public readonly List<IntVec3> Cells = [];
 			public bool IsValid = false;
 		}
 
-		private readonly Dictionary<int, RoomTemperature> roomTemperatures = [];
+		private readonly Dictionary<int, RoomTemperature> _roomTemperatures = [];
 
 		private const float MaxTemperature = 1000f;
 		private const float MinTemperature = -273.15f;
 
-		public bool ResetTemperatureFlag = false;
+		private bool _resetTemperatureFlag = false;
 
-		private string cachedOriginTemperatureString;
+		private string _cachedOriginTemperatureString;
 
-		private float cachedCellTemperatureStringForTemperature;
-		private string cachedCellTemperatureString;
+		private float _cachedCellTemperatureStringForTemperature;
+		private string _cachedCellTemperatureString;
 
-		private string cachedFinalTemperatureString;
+		private string _cachedFinalTemperatureString;
 
 		private static bool _isRunningSimulation = false;
 		private static float _tickStart = 0f;
@@ -57,20 +57,20 @@ namespace GridCellTemperature.Core
 
 		public Map Map
 		{
-			get { return map; }
+			get { return _map; }
 		}
 
 		private float[] CurrentTemperatures
 		{
 			get
 			{
-				if (currentIndex == 0)
+				if (_currentIndex == 0)
 				{
-					return temperatures1;
+					return _temperatures1;
 				}
 				else
 				{
-					return temperatures2;
+					return _temperatures2;
 				}
 			}
 		}
@@ -79,34 +79,34 @@ namespace GridCellTemperature.Core
 		{
 			get
 			{
-				if (currentIndex == 0)
+				if (_currentIndex == 0)
 				{
-					return temperatures2;
+					return _temperatures2;
 				}
 				else
 				{
-					return temperatures1;
+					return _temperatures1;
 				}
 			}
 		}
 		public TemperatureGrid(Map map)
 		{
-			this.map = map;
+			this._map = map;
 			var num = map.cellIndices.NumGridCells;
-			temperatures1 = new float[num];
-			temperatures2 = new float[num];
-			airCellGrid = new bool[num];
-			ventilationGrids = new float?[num];
-			pushHeatGrid = new float[num];
+			_temperatures1 = new float[num];
+			_temperatures2 = new float[num];
+			_airCellGrid = new bool[num];
+			_ventilationGrids = new float?[num];
+			_pushHeatGrid = new float[num];
 
-			TemperatureGrids.SetOrAdd(map.uniqueID, this);
+			temperatureGrids.SetOrAdd(map.uniqueID, this);
 
-			ResetTemperatureFlag = true;
+			_resetTemperatureFlag = true;
 		}
 
 		public static TemperatureGrid GetTemperatureGrid(Map map)
 		{
-			if (map != null && TemperatureGrids.TryGetValue(map.uniqueID, out var grid))
+			if (map != null && temperatureGrids.TryGetValue(map.uniqueID, out var grid))
 			{
 				return grid;
 			}
@@ -116,21 +116,21 @@ namespace GridCellTemperature.Core
 
 		public void OnFinalizeInit()
 		{
-			if (!ResetTemperatureFlag)
+			if (!_resetTemperatureFlag)
 			{
 				return;
 			}
-			ResetTemperatureFlag = false;
+			_resetTemperatureFlag = false;
 
-			var cellIndices = map.cellIndices;
+			var cellIndices = _map.cellIndices;
 			// 모드가 중간에 추가되었으면 기존 온도로 초기화 시켜준다
-			var outdoorTemperature = map.mapTemperature.OutdoorTemp;
+			var outdoorTemperature = _map.mapTemperature.OutdoorTemp;
 			var temperatures = CurrentTemperatures;
 			for (var i = 0; i < temperatures.Length; i++)
 			{
 				temperatures[i] = outdoorTemperature;
 			}
-			foreach (var room in map.regionGrid.AllRooms)
+			foreach (var room in _map.regionGrid.AllRooms)
 			{
 				if (room.UsesOutdoorTemperature)
 				{
@@ -159,7 +159,7 @@ namespace GridCellTemperature.Core
 				_tickStart = Time.realtimeSinceStartup;
 			}
 
-			foreach (var (map, grid) in TemperatureGrids)
+			foreach (var (map, grid) in temperatureGrids)
 			{
 				grid.PreSimulationTick();
 			}
@@ -172,7 +172,7 @@ namespace GridCellTemperature.Core
 			try
 			{
 				List<Task> tasks = [];
-				foreach (var (map, grid) in TemperatureGrids)
+				foreach (var (map, grid) in temperatureGrids)
 				{
 					tasks.Add(grid.AsyncSimulationTick());
 				}
@@ -207,33 +207,33 @@ namespace GridCellTemperature.Core
 
 			var cellTemperature = GetTemperature(c);
 
-			var cellTemperature1 = Mathf.RoundToInt(GenTemperature.CelsiusTo(cachedCellTemperatureStringForTemperature, Prefs.TemperatureMode));
+			var cellTemperature1 = Mathf.RoundToInt(GenTemperature.CelsiusTo(_cachedCellTemperatureStringForTemperature, Prefs.TemperatureMode));
 			var cellTemperature2 = Mathf.RoundToInt(GenTemperature.CelsiusTo(cellTemperature, Prefs.TemperatureMode));
 
-			var isDirtyText = cachedOriginTemperatureString != __result;
-			cachedOriginTemperatureString = __result;
+			var isDirtyText = _cachedOriginTemperatureString != __result;
+			_cachedOriginTemperatureString = __result;
 
 			if (cellTemperature1 != cellTemperature2)
 			{
-				cachedCellTemperatureStringForTemperature = cellTemperature;
-				cachedCellTemperatureString = cellTemperature.ToStringTemperature("F0");
+				_cachedCellTemperatureStringForTemperature = cellTemperature;
+				_cachedCellTemperatureString = cellTemperature.ToStringTemperature("F0");
 
 				isDirtyText = true;
 			}
 
 			if (isDirtyText)
 			{
-				cachedFinalTemperatureString = cachedCellTemperatureString + " | " + cachedOriginTemperatureString;
+				_cachedFinalTemperatureString = _cachedCellTemperatureString + " | " + _cachedOriginTemperatureString;
 			}
 
 
 			if (Settings.viewSimTickTime.Value)
 			{
-				__result = $"{_tickTime:F4} | {cachedFinalTemperatureString}";
+				__result = $"{_tickTime:F4} | {_cachedFinalTemperatureString}";
 			}
 			else
 			{
-				__result = cachedFinalTemperatureString;
+				__result = _cachedFinalTemperatureString;
 			}
 		}
 
@@ -249,7 +249,7 @@ namespace GridCellTemperature.Core
 		}
 		public float GetTemperature(IntVec3 cell)
 		{
-			var index = CellIndicesUtility.CellToIndex(cell, map.Size.x);
+			var index = CellIndicesUtility.CellToIndex(cell, _map.Size.x);
 			return CurrentTemperatures[index];
 		}
 
@@ -265,16 +265,16 @@ namespace GridCellTemperature.Core
 		}
 		public float GetRoomAverageTemperature(int roomId)
 		{
-			if (roomTemperatures.TryGetValue(roomId, out var item))
+			if (_roomTemperatures.TryGetValue(roomId, out var item))
 			{
 				return item.Temperature;
 			}
-			return map.mapTemperature.OutdoorTemp;
+			return _map.mapTemperature.OutdoorTemp;
 		}
 
 		public void SetRoomAverageTemperature(int roomId, float temperature)
 		{
-			if (roomTemperatures.TryGetValue(roomId, out var item))
+			if (_roomTemperatures.TryGetValue(roomId, out var item))
 			{
 				// 초기화 상황이 아니면 세팅된 온도의 차이만큼 방 전체온도를 낮춘다
 				var d = temperature - item.Temperature;
@@ -283,7 +283,7 @@ namespace GridCellTemperature.Core
 			}
 
 			item = new RoomTemperature();
-			roomTemperatures.Add(roomId, item);
+			_roomTemperatures.Add(roomId, item);
 			item.Temperature = temperature;
 		}
 
@@ -301,19 +301,20 @@ namespace GridCellTemperature.Core
 		public void PushHeat(IntVec3 cell, float energy)
 		{
 			// nexttick이 비동기로 처리되어서 처리중이면 끝날때 까지 기다렸다가 반영함
-			if (dataLock)
+			if (_dataLock)
 			{
-				PushHeatWaitQueue.Enqueue((cell, energy));
+				_pushHeatWaitQueue.Enqueue((cell, energy));
 				return;
 			}
 
-			var index = CellToIndex(cell.x, cell.z, map.Size);
+			var index = CellToIndex(cell.x, cell.z, _map.Size);
 			if (index == null)
 			{
 				return;
 			}
 
-			pushHeatGrid[index.Value] += energy / Mathf.Sqrt(Settings.baseHeatTransferCoefficient.Value);
+			var baseHeatTransferCoefficient = Settings.baseHeatTransferCoefficient.Value;
+			_pushHeatGrid[index.Value] += energy / baseHeatTransferCoefficient * baseHeatTransferCoefficient;
 		}
 
 		public static void SetVentilationCell(Map map, IntVec3 c, float? value)
@@ -329,15 +330,15 @@ namespace GridCellTemperature.Core
 
 		public void SetVentilationCell(IntVec3 c, float? value)
 		{
-			var index = CellIndicesUtility.CellToIndex(c, map.Size.x);
-			ventilationGrids[index] = value;
+			var index = CellIndicesUtility.CellToIndex(c, _map.Size.x);
+			_ventilationGrids[index] = value;
 		}
 
 		public void ExposeData()
 		{
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
-				ResetTemperatureFlag = false;
+				_resetTemperatureFlag = false;
 			}
 
 			var curTemperatures = CurrentTemperatures;
@@ -346,9 +347,9 @@ namespace GridCellTemperature.Core
 			Array.Copy(curTemperatures, temperatures, curTemperatures.Length);
 
 			const float ExposeConstant = 100f;
-			MapExposeUtility.ExposeInt(map, (IntVec3 c) => (int)(temperatures[map.cellIndices.CellToIndex(c)] * ExposeConstant), delegate (IntVec3 c, int val)
+			MapExposeUtility.ExposeInt(_map, (IntVec3 c) => (int)(temperatures[_map.cellIndices.CellToIndex(c)] * ExposeConstant), delegate (IntVec3 c, int val)
 			{
-				temperatures[map.cellIndices.CellToIndex(c)] = val / ExposeConstant;
+				temperatures[_map.cellIndices.CellToIndex(c)] = val / ExposeConstant;
 			}, "gridTemperatures");
 
 			Array.Copy(temperatures, curTemperatures, temperatures.Length);
@@ -356,25 +357,25 @@ namespace GridCellTemperature.Core
 
 		protected void PreSimulationTick()
 		{
-			var mapSizeX = map.Size.x;
+			var mapSizeX = _map.Size.x;
 
-			foreach (var (roomId, roomTemperature) in roomTemperatures)
+			foreach (var (roomId, roomTemperature) in _roomTemperatures)
 			{
 				roomTemperature.IsValid = false;
 			}
 
-			Array.Clear(airCellGrid, 0, airCellGrid.Length);
+			Array.Clear(_airCellGrid, 0, _airCellGrid.Length);
 
-			foreach (var room in map.regionGrid.AllRooms)
+			foreach (var room in _map.regionGrid.AllRooms)
 			{
 				var cells = room.Cells;
 
 				if (!room.UsesOutdoorTemperature && !room.PsychologicallyOutdoors)
 				{
-					if (!roomTemperatures.TryGetValue(room.ID, out RoomTemperature roomTemperature))
+					if (!_roomTemperatures.TryGetValue(room.ID, out RoomTemperature roomTemperature))
 					{
 						roomTemperature = new RoomTemperature();
-						roomTemperatures.Add(room.ID, roomTemperature);
+						_roomTemperatures.Add(room.ID, roomTemperature);
 					}
 
 					roomTemperature.IsValid = true;
@@ -385,56 +386,45 @@ namespace GridCellTemperature.Core
 				foreach (var cell in cells)
 				{
 					var index = CellIndicesUtility.CellToIndex(cell, mapSizeX);
-					airCellGrid[index] = true;
+					_airCellGrid[index] = true;
 				}
 			}
 
-			foreach (var key in roomTemperatures.Where(kv => !kv.Value.IsValid).Select(kv => kv.Key).ToList())
+			foreach (var key in _roomTemperatures.Where(kv => !kv.Value.IsValid).Select(kv => kv.Key).ToList())
 			{
-				roomTemperatures.Remove(key);
+				_roomTemperatures.Remove(key);
 			}
 
-			foreach (var (cell, energy) in PushHeatWaitQueue)
+			foreach (var (cell, energy) in _pushHeatWaitQueue)
 			{
 				PushHeat(cell, energy);
 			}
-			PushHeatWaitQueue.Clear();
+			_pushHeatWaitQueue.Clear();
 		}
 
 		protected Task AsyncSimulationTick()
 		{
-			var size = map.Size;
+			var size = _map.Size;
 
 			var prev = CurrentTemperatures;
 			var next = NextTemperatures;
-			var outdoorTemperature = map.mapTemperature.OutdoorTemp;
-			var roofGrid = map.roofGrid;
+			var outdoorTemperature = _map.mapTemperature.OutdoorTemp;
+			var roofGrid = _map.roofGrid;
 
-			dataLock = true;
+			_dataLock = true;
 			{
-				Parallel.For(0, pushHeatGrid.Length,
+				Parallel.For(0, _pushHeatGrid.Length,
 					i =>
 					{
-						var heat = pushHeatGrid[i];
+						var heat = _pushHeatGrid[i];
 						if (heat == 0f)
 						{
 							return;
 						}
 
-						const float MaxHeatPushPerTick = 20f;
+						_pushHeatGrid[i] = 0f;
 
-						var absHeat = Math.Abs(heat);
-						if (absHeat > MaxHeatPushPerTick)
-						{
-							heat = Mathf.Sign(heat) * Mathf.Max(absHeat * 0.4f, MaxHeatPushPerTick);
-							pushHeatGrid[i] -= heat;
-						}
-						else
-						{
-							pushHeatGrid[i] = 0f;
-						}
-
-						if (!airCellGrid[i])
+						if (!_airCellGrid[i])
 						{
 							heat *= Settings.wallDiffusivity.Value;
 						}
@@ -451,7 +441,7 @@ namespace GridCellTemperature.Core
 						next[i] = temperature;
 					});
 
-				Parallel.ForEach(roomTemperatures,
+				Parallel.ForEach(_roomTemperatures,
 					(item) =>
 					{
 						var roomTemperature = item.Value;
@@ -482,11 +472,11 @@ namespace GridCellTemperature.Core
 						}
 					});
 
-				currentIndex = (currentIndex + 1) % 2;
+				_currentIndex = (_currentIndex + 1) % 2;
 			}
-			dataLock = false;
+			_dataLock = false;
 
-			var temperatureDrawer = map.mapTemperature.Drawer as TemperatureCellBoolDrawer;
+			var temperatureDrawer = _map.mapTemperature.Drawer as TemperatureCellBoolDrawer;
 			if (temperatureDrawer != null)
 			{
 				temperatureDrawer.MarkTemperatureAsDirty();
@@ -502,7 +492,7 @@ namespace GridCellTemperature.Core
 
 			var cellTemperature = tempGrid[index.Value];
 
-			var ventilation = ventilationGrids[index.Value];
+			var ventilation = _ventilationGrids[index.Value];
 
 			bool cellIsWall;
 			if (ventilation.HasValue)
@@ -511,7 +501,7 @@ namespace GridCellTemperature.Core
 			}
 			else
 			{
-				cellIsWall = !airCellGrid[index.Value];
+				cellIsWall = !_airCellGrid[index.Value];
 			}
 
 			var roofDef = roofGrid.RoofAt(index.Value);
@@ -552,16 +542,20 @@ namespace GridCellTemperature.Core
 			var sum = 0f;
 			for (var i = 0; i < 4; i++)
 			{
+				var weight = weights[i];
+				
 				var targetCellEnergy = temperatures[i] - outdoorTemperature;
 				var targetCellEnergySign = Mathf.Sign(targetCellEnergy);
 				var targetCellEnergyValue = Mathf.Abs(targetCellEnergy);
 				for (var c = 1; c < baseHeatTransferCoefficient; c++)
 				{
 					targetCellEnergyValue *= targetCellEnergyValue;
+					
+					weight *= weights[i];
 				}
 				targetCellEnergyValue *= targetCellEnergySign;
 
-				var d = (targetCellEnergyValue - cellEnergyValue) * weights[i];
+				var d = (targetCellEnergyValue - cellEnergyValue) * weight;
 				sum += d;
 			}
 			var newValue = cellEnergyValue + sum * 0.2f;
@@ -604,7 +598,7 @@ namespace GridCellTemperature.Core
 			else
 			{
 				temperature = tempGrid[index.Value];
-				var ventilation = ventilationGrids[index.Value];
+				var ventilation = _ventilationGrids[index.Value];
 				// 공기 통로가 있는 곳은(벤트, 열린문) 따로 처리
 				if (ventilation.HasValue)
 				{
@@ -616,7 +610,7 @@ namespace GridCellTemperature.Core
 				}
 				else
 				{
-					isWall = !airCellGrid[index.Value];
+					isWall = !_airCellGrid[index.Value];
 				}
 			}
 
