@@ -559,7 +559,6 @@ namespace GridCellTemperature.Core
 				sum += d;
 			}
 			var newValue = cellEnergyValue + sum * 0.2f;
-			newValue *= 1f - roofWeight;
 
 			var resultSign = Mathf.Sign(newValue);
 			newValue = Mathf.Abs(newValue);
@@ -567,6 +566,8 @@ namespace GridCellTemperature.Core
 			{
 				newValue = Mathf.Sqrt(newValue);
 			}
+			
+			newValue *= 1f - roofWeight;
 
 			var result = newValue * Mathf.Sign(resultSign) + outdoorTemperature;
 
