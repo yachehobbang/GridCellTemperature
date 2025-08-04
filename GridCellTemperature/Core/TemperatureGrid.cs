@@ -21,7 +21,7 @@ namespace GridCellTemperature.Core
 
 		private readonly float[] _pushHeatGrid;
 
-		private readonly Queue<(IntVec3 cell, float energy)> _pushHeatWaitQueue = new();
+		private readonly Queue<(IntVec3 cell, float energy)> _pushHeatWaitQueue = [];
 
 		private int _currentIndex = 0;
 
@@ -38,6 +38,8 @@ namespace GridCellTemperature.Core
 		}
 
 		private readonly Dictionary<int, RoomTemperature> _roomTemperatures = [];
+		
+		private readonly Queue<(int roomId, float temperature)> _roomTemperaturesWaitQueue = [];
 
 		private const float MaxTemperature = 1000f;
 		private const float MinTemperature = -273.15f;
@@ -274,6 +276,12 @@ namespace GridCellTemperature.Core
 
 		public void SetRoomAverageTemperature(int roomId, float temperature)
 		{
+			if (_dataLock)
+			{
+				_roomTemperaturesWaitQueue.Enqueue((roomId, temperature));
+				return;
+			}
+			
 			if (_roomTemperatures.TryGetValue(roomId, out var item))
 			{
 				// 초기화 상황이 아니면 세팅된 온도의 차이만큼 방 전체온도를 낮춘다
@@ -400,6 +408,12 @@ namespace GridCellTemperature.Core
 				PushHeat(cell, energy);
 			}
 			_pushHeatWaitQueue.Clear();
+			
+			foreach (var (roomId, temperature) in _roomTemperaturesWaitQueue)
+			{
+				SetRoomAverageTemperature(roomId, temperature);
+			}
+			_roomTemperaturesWaitQueue.Clear();
 		}
 
 		protected Task AsyncSimulationTick()
